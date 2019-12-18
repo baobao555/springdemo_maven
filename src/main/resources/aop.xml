@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <bean id="accountService" class="com.baobao.aopdemo.service.impl.AccountService"/>
+
+    <!--配置logger-->
+    <bean id="logger" class="com.baobao.aopdemo.Logger"/>
+
+    <!--配置aop-->
+    <aop:config>
+    <!--aop:aspect:
+    作用： 用于配置切面。
+    属性： id：给切面提供一个唯一标识。
+    ref：引用配置好的通知类bean的id。-->
+        <aop:aspect id="loggerAop" ref="logger">
+            <!--aop:pointcut： 
+            作用： 用于配置切入点表达式。就是指定对哪些类的哪些方法进行增强。 
+            属性： expression：用于定义切入点表达式。 
+                   id：用于给切入点表达式提供一个唯一标识-->
+            <!--execution:匹配方法的执行(常用) execution(表达式)
+            表达式语法：execution([修饰符] 返回值类型 包名.类名.方法名(参数))
+            写法说明：
+            全匹配方式： public void com.itheima.service.impl.AccountServiceImpl.saveAccount(com.itheima.domain.Account)
+            访问修饰符可以省略 void com.itheima.service.impl.AccountServiceImpl.saveAccount(com.itheima.domain.Account)
+            返回值可以使用*号，表示任意返回值 * com.itheima.service.impl.AccountServiceImpl.saveAccount(com.itheima.domain.Account)
+            包名可以使用*号，表示任意包，但是有几级包，需要写几个* * *.*.*.*.AccountServiceImpl.saveAccount(com.itheima.domain.Account)
+            使用..来表示当前包，及其子包 * com..AccountServiceImpl.saveAccount(com.itheima.domain.Account)
+            类名可以使用*号，表示任意类 * com..*.saveAccount(com.itheima.domain.Account)
+            方法名可以使用*号，表示任意方法 * com..*.*( com.itheima.domain.Account)
+            参数列表可以使用*，表示参数可以是任意数据类型，但是必须有参数 * com..*.*(*)
+            参数列表可以使用..表示有无参数均可，有参数可以是任意类型 * com..*.*(..) 全通配方式： * *..*.*(..)
+            注： 通常情况下，我们都是对业务层的方法进行增强，所以切入点表达式都是切到业务层实现类。 execution(* com.itheima.service.impl.*.*(..))-->
+            <aop:pointcut id="pt" expression="execution(* com.baobao.aopdemo.service.impl.*.*(..))"/>
+
+            <!--aop:before 作用： 用于配置前置通知。指定增强的方法在切入点方法之前执行
+            属性： method:用于指定通知类中的增强方法名称
+                   ponitcut-ref：用于指定切入点的表达式的引用
+                   poinitcut：用于指定切入点表达式 执行时间点： 切入点方法执行之前执行-->
+            <aop:before method="beforeLog" pointcut-ref="pt"/>
+            <!--后置通知：切入点方法正常执行之后。它和异常通知只能有一个执行-->
+            <aop:after-returning method="afterReturningLog" pointcut-ref="pt"/>
+            <!--异常通知：切入点方法执行产生异常后执行。它和后置通知只能执行一个-->
+            <aop:after-throwing method="afterThrowingLog" pointcut-ref="pt"/>
+            <!--最终通知：无论切入点方法执行时是否有异常，它都会在其后面执行-->
+            <aop:after method="afterLog" pointcut-ref="pt"/>
+
+            <!--aop:around： 作用： 用于配置环绕通知
+            属性： method：指定通知中方法的名称。
+            pointct：定义切入点表达式 pointcut-ref：指定切入点表达式的引用
+            说明： 它是spring框架为我们提供的一种可以在代码中手动控制增强代码什么时候执行的方式。
+            注意： 通常情况下，环绕通知都是独立使用的-->
+<!--            <aop:around method="aroundLog" pointcut-ref="pt"/>-->
+        </aop:aspect>
+    </aop:config>
+</beans>
